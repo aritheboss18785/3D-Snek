@@ -10,30 +10,34 @@ import { AISnake } from './entities/ai-snake.js';
 import { CollisionSystem } from './systems/collision.js';
 import { AISystem } from './systems/ai.js';
 import { SpawnSystem } from './systems/spawn.js';
+import { HUD } from './ui/hud.js';
+import { GameOver } from './ui/gameover.js';
 
 const container = document.getElementById('canvas-container');
+const hudEl     = document.getElementById('hud');
 
-const sceneManager = new SceneManager(container);
-const input = new InputHandler();
-const cameraSystem = new CameraSystem(sceneManager.camera);
-const game = new Game(sceneManager, input, cameraSystem);
-
-const arena = new Arena(sceneManager.scene);
-const foodSystem = new FoodSystem(sceneManager.scene, arena);
-const portalSystem = new PortalSystem(sceneManager.scene, arena);
-const player = new Player(sceneManager.scene, input);
+const sceneManager    = new SceneManager(container);
+const input           = new InputHandler();
+const cameraSystem    = new CameraSystem(sceneManager.camera);
+const game            = new Game(sceneManager, input, cameraSystem);
+const arena           = new Arena(sceneManager.scene);
+const foodSystem      = new FoodSystem(sceneManager.scene, arena);
+const portalSystem    = new PortalSystem(sceneManager.scene, arena);
+const player          = new Player(sceneManager.scene, input);
 const collisionSystem = new CollisionSystem(arena);
-const aiSystem = new AISystem();
-const spawnSystem = new SpawnSystem(sceneManager.scene, arena);
+const aiSystem        = new AISystem();
+const spawnSystem     = new SpawnSystem(sceneManager.scene, arena);
+const hud             = new HUD(hudEl);
+const gameOver        = new GameOver(hudEl, () => window.location.reload());
 
-game.player = player;
+game.player       = player;
 game.portalSystem = portalSystem;
+game.gameOver     = gameOver;
 
 const aiSnakes = [];
 
 function addAI(pos, color, tier) {
   const ai = new AISnake(sceneManager.scene, pos, color, tier);
-  // If currently in chaos, new AI snakes also get vertical movement
   if (game.state === STATE.CHAOS) ai.canMoveVertical = true;
   aiSnakes.push(ai);
 }
@@ -46,12 +50,10 @@ function removeAI(snake) {
 game.update = function(delta) {
   if (game.state !== STATE.PLAYING && game.state !== STATE.CHAOS) return;
 
-  // Chaos timer countdown
   if (game.state === STATE.CHAOS) {
     game.chaosTimer -= delta;
     if (game.chaosTimer <= 0) {
-      // End chaos
-      game._endChaos(); // sets state=PLAYING, calls portalSystem.respawnAll() + setActive(true)
+      game._endChaos();
       player.canMoveVertical = false;
       player._headPos.y = 0;
       player.direction.y = 0;
@@ -83,6 +85,7 @@ game.update = function(delta) {
     snake.die((positions, color) => foodSystem.spawnOrbs(positions, color));
     if (snake === player) {
       game.state = STATE.DEAD;
+      gameOver.show(player.length, game.score, game.kills);
     } else {
       game.kills++;
       game.score += 100;
@@ -99,13 +102,20 @@ game.update = function(delta) {
     if (snake === player) game.score += growth * 5;
   });
 
-  // Handle portal triggers — enter chaos if not already in it
   if (result.portalsHit.length > 0 && game.state !== STATE.CHAOS) {
     // enterChaos() calls portalSystem.setActive(false), preventing re-trigger this frame
-    game.enterChaos(); // sets state=CHAOS, chaosTimer=30, player.canMoveVertical=true, portalSystem.setActive(false)
-    // Also enable vertical for all AI snakes
+    game.enterChaos();
     aiSnakes.forEach(s => { s.canMoveVertical = true; });
   }
+
+  hud.update({
+    length: player.length,
+    score: game.score,
+    kills: game.kills,
+    chaosTimer: game.state === STATE.CHAOS ? game.chaosTimer : 0,
+    snakes: allSnakes,
+    arena,
+  });
 };
 
 game.start();
