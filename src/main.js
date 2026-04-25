@@ -3,6 +3,8 @@ import { SceneManager } from './core/scene.js';
 import { InputHandler } from './core/input.js';
 import { CameraSystem } from './systems/camera.js';
 import { Game, STATE } from './core/game.js';
+import { Arena } from './world/arena.js';
+import { FoodSystem } from './world/food.js';
 
 const container = document.getElementById('canvas-container');
 
@@ -11,17 +13,15 @@ const input = new InputHandler();
 const cameraSystem = new CameraSystem(sceneManager.camera);
 const game = new Game(sceneManager, input, cameraSystem);
 
-// Temporary test cube — removed when snake entity is implemented in Task 4
-const testCube = new THREE.Mesh(
-  new THREE.BoxGeometry(4, 4, 4),
-  new THREE.MeshStandardMaterial({ color: 0x00aaff, emissive: 0x00aaff, emissiveIntensity: 0.4 })
-);
-sceneManager.scene.add(testCube);
+const arena = new Arena(sceneManager.scene);
+const foodSystem = new FoodSystem(sceneManager.scene, arena);
 
-const fakeDir = new THREE.Vector3(1, 0, 0);
+// Temp: static overhead camera to verify arena and food visually
+sceneManager.camera.position.set(0, 200, 0);
+sceneManager.camera.lookAt(0, 0, 0);
 
 game.update = function(delta) {
-  cameraSystem.update(delta, testCube.position, fakeDir, 5, false);
+  foodSystem.update(delta);
 };
 
 game.start();
