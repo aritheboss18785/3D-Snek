@@ -42,7 +42,9 @@ export class Game {
     this._lastTime = time;
     this.update(delta);
     this.sceneManager.render();
-    this._rafId = requestAnimationFrame(t => this._loop(t));
+    if (this.state !== STATE.DEAD) {
+      this._rafId = requestAnimationFrame(t => this._loop(t));
+    }
   }
 
   update(delta) {
@@ -51,6 +53,7 @@ export class Game {
   }
 
   enterChaos() {
+    if (this.state === STATE.CHAOS) return;
     this.state = STATE.CHAOS;
     this.chaosTimer = 30;
     if (this.player) this.player.canMoveVertical = true;
@@ -69,7 +72,7 @@ export class Game {
 
   handlePlayerDeath() {
     this.state = STATE.DEAD;
-    if (this.gameOver) {
+    if (this.gameOver && this.player) {
       this.gameOver.show(this.player.length, this.score, this.kills);
     }
   }
