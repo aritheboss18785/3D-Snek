@@ -27,7 +27,6 @@ export class Game {
     this.portalSystem = null;
     this.collisionSystem = null;
     this.spawnSystem = null;
-    this.hud = null;
     this.gameOver = null;
   }
 
@@ -67,13 +66,6 @@ export class Game {
     if (this.portalSystem) {
       this.portalSystem.respawnAll();
       this.portalSystem.setActive(true);
-    }
-  }
-
-  handlePlayerDeath() {
-    this.state = STATE.DEAD;
-    if (this.gameOver && this.player) {
-      this.gameOver.show(this.player.length, this.score, this.kills);
     }
   }
 

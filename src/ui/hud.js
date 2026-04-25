@@ -48,7 +48,7 @@ export class HUD {
 
   _drawMinimap(snakes, arena) {
     const ctx = this._mapCtx;
-    const W = 160, H = 160;
+    const W = ctx.canvas.width, H = ctx.canvas.height;
     ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = 'rgba(0,5,15,0.85)';
     ctx.fillRect(0, 0, W, H);

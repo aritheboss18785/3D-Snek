@@ -32,7 +32,7 @@ export class GameOver {
     this._el.appendChild(div);
     this._overlay = div;
 
-    document.getElementById('btn-restart').addEventListener('click', () => {
+    div.querySelector('#btn-restart').addEventListener('click', () => {
       this.hide();
       this._onRestart();
     });
