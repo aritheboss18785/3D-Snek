@@ -4,19 +4,19 @@ export const ARENA_W = 200;
 export const ARENA_D = 200;
 export const ARENA_H = 80;
 
-export function isOutOfBounds(pos, halfW, halfD, halfH) {
+export function isOutOfBounds(pos, halfW, halfD, ceilH) {
   return (
     pos.x < -halfW || pos.x > halfW ||
     pos.z < -halfD || pos.z > halfD ||
-    pos.y < 0 || pos.y > halfH
+    pos.y < 0 || pos.y > ceilH
   );
 }
 
-export function distanceToWall(pos, halfW, halfD, halfH) {
+export function distanceToWall(pos, halfW, halfD, ceilH) {
   return Math.min(
     pos.x + halfW, halfW - pos.x,
     pos.z + halfD, halfD - pos.z,
-    pos.y, halfH - pos.y
+    pos.y, ceilH - pos.y
   );
 }
 
@@ -24,7 +24,7 @@ export class Arena {
   constructor(scene) {
     this.halfW = ARENA_W / 2;
     this.halfD = ARENA_D / 2;
-    this.halfH = ARENA_H;
+    this.ceilH = ARENA_H;
     this._build(scene);
   }
 
@@ -52,11 +52,11 @@ export class Arena {
   }
 
   isOutOfBounds(pos) {
-    return isOutOfBounds(pos, this.halfW, this.halfD, this.halfH);
+    return isOutOfBounds(pos, this.halfW, this.halfD, this.ceilH);
   }
 
   distanceToWall(pos) {
-    return distanceToWall(pos, this.halfW, this.halfD, this.halfH);
+    return distanceToWall(pos, this.halfW, this.halfD, this.ceilH);
   }
 
   randomFloorPosition(margin = 10) {

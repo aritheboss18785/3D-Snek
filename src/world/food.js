@@ -2,7 +2,6 @@ import * as THREE from 'three';
 
 const FOOD_COUNT = 100;
 const FOOD_GEO = new THREE.SphereGeometry(0.8, 8, 6);
-const ORB_GEO = new THREE.SphereGeometry(1.5, 8, 8);
 
 export class FoodSystem {
   constructor(scene, arena) {
@@ -43,9 +42,11 @@ export class FoodSystem {
   checkOrbCollection(headPos, radius) {
     let growth = 0;
     this.orbs = this.orbs.filter(orb => {
-      const d = headPos.distanceTo(orb.mesh.position);
-      if (d < radius) {
+      const dx = headPos.x - orb.mesh.position.x;
+      const dz = headPos.z - orb.mesh.position.z;
+      if (dx * dx + dz * dz < radius * radius) {
         this.scene.remove(orb.mesh);
+        orb.mesh.geometry.dispose();
         orb.mesh.material.dispose();
         growth += 3;
         return false;
@@ -63,7 +64,7 @@ export class FoodSystem {
         emissive: color,
         emissiveIntensity: 1.2,
       });
-      const mesh = new THREE.Mesh(ORB_GEO, mat);
+      const mesh = new THREE.Mesh(new THREE.SphereGeometry(1.5, 8, 8), mat);
       mesh.position.copy(trailPositions[i]);
       mesh.position.y = Math.max(mesh.position.y, 1.5);
       this.scene.add(mesh);
@@ -95,6 +96,7 @@ export class FoodSystem {
       orb.timer -= delta;
       if (orb.timer <= 0) {
         this.scene.remove(orb.mesh);
+        orb.mesh.geometry.dispose();
         orb.mesh.material.dispose();
         return false;
       }
@@ -103,5 +105,20 @@ export class FoodSystem {
       orb.mesh.position.y += delta * 0.4;
       return true;
     });
+  }
+
+  dispose() {
+    this.pellets.forEach(p => {
+      this.scene.remove(p);
+      p.material.dispose();
+    });
+    FOOD_GEO.dispose();
+    this.pellets = [];
+    this.orbs.forEach(orb => {
+      this.scene.remove(orb.mesh);
+      orb.mesh.geometry.dispose();
+      orb.mesh.material.dispose();
+    });
+    this.orbs = [];
   }
 }

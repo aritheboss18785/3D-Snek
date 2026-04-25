@@ -1,14 +1,14 @@
 import { describe, it, expect } from 'vitest';
 
 // Pure math functions mirroring Arena logic (tested without importing THREE)
-const HALF_W = 100, HALF_D = 100, HALF_H = 80;
+const HALF_W = 100, HALF_D = 100, CEIL_H = 80;
 
 function isOOB(pos) {
-  return pos.x < -HALF_W || pos.x > HALF_W || pos.z < -HALF_D || pos.z > HALF_D || pos.y < 0 || pos.y > HALF_H;
+  return pos.x < -HALF_W || pos.x > HALF_W || pos.z < -HALF_D || pos.z > HALF_D || pos.y < 0 || pos.y > CEIL_H;
 }
 
 function wallDist(pos) {
-  return Math.min(pos.x + HALF_W, HALF_W - pos.x, pos.z + HALF_D, HALF_D - pos.z, pos.y, HALF_H - pos.y);
+  return Math.min(pos.x + HALF_W, HALF_W - pos.x, pos.z + HALF_D, HALF_D - pos.z, pos.y, CEIL_H - pos.y);
 }
 
 const v = (x, y, z) => ({ x, y, z });
