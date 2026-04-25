@@ -4,6 +4,9 @@ const SEGMENT_SPACING = 2.8;
 const HEAD_RADIUS = 1.4;
 const BODY_RADIUS = 1.1;
 
+const _UP = new THREE.Vector3(0, 1, 0);
+const _RIGHT_SCRATCH = new THREE.Vector3();
+
 export class Snake {
   constructor(scene, startPos, color) {
     this.scene = scene;
@@ -46,16 +49,13 @@ export class Snake {
   }
 
   steerHorizontal(sign, delta) {
-    const axis = new THREE.Vector3(0, 1, 0);
-    this.direction.applyAxisAngle(axis, sign * this.turnSpeed * delta);
+    this.direction.applyAxisAngle(_UP, sign * this.turnSpeed * delta);
     this.direction.normalize();
   }
 
   steerVertical(sign, delta) {
-    const right = new THREE.Vector3()
-      .crossVectors(this.direction, new THREE.Vector3(0, 1, 0))
-      .normalize();
-    this.direction.applyAxisAngle(right, sign * this.turnSpeed * delta);
+    _RIGHT_SCRATCH.crossVectors(this.direction, _UP).normalize();
+    this.direction.applyAxisAngle(_RIGHT_SCRATCH, sign * this.turnSpeed * delta);
     this.direction.normalize();
   }
 
@@ -82,10 +82,9 @@ export class Snake {
       while (this.segments.length < this.targetLength) {
         this._addSegment(false);
       }
-    } else {
-      // Update front of trail to current head position each frame
-      this.trail[0] = this._headPos.clone();
     }
+    // No else needed — trail[0] stays at last milestone position
+    // Head mesh (segment[0]) is always positioned from _headPos directly below
 
     // Sync segment mesh positions
     this.segments[0].position.copy(this._headPos);

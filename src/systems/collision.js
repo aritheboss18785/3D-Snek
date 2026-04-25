@@ -21,6 +21,7 @@ export class CollisionSystem {
       orbsCollected: [],
       portalsHit: [],
     };
+    const killed = new Set();
 
     for (const snake of snakes) {
       if (!snake.alive) continue;
@@ -28,7 +29,7 @@ export class CollisionSystem {
 
       // Wall check
       if (this.arena.isOutOfBounds(head)) {
-        result.deaths.push(snake);
+        if (!killed.has(snake)) { result.deaths.push(snake); killed.add(snake); }
         continue;
       }
 
@@ -38,7 +39,7 @@ export class CollisionSystem {
         if (!other.alive || other === snake) continue;
         for (const seg of other.segments) {
           if (sphereOverlap(head, seg.position, COLLISION_RADIUS)) {
-            result.deaths.push(snake);
+            if (!killed.has(snake)) { result.deaths.push(snake); killed.add(snake); }
             died = true;
             break;
           }
@@ -56,7 +57,7 @@ export class CollisionSystem {
       const orbGrowth = foodSystem.checkOrbCollection(head, ORB_RADIUS);
       if (orbGrowth > 0) result.orbsCollected.push({ snake, growth: orbGrowth });
 
-      // Portal trigger (only if portalSystem provided and active)
+      // Portal trigger
       if (portalSystem && portalSystem.active && portalSystem.checkTrigger(head)) {
         result.portalsHit.push(snake);
       }
