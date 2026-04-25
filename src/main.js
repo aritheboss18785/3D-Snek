@@ -49,7 +49,6 @@ game.update = function(delta) {
   // Chaos timer countdown
   if (game.state === STATE.CHAOS) {
     game.chaosTimer -= delta;
-    console.log('Chaos timer:', Math.ceil(game.chaosTimer));
     if (game.chaosTimer <= 0) {
       // End chaos
       game._endChaos(); // sets state=PLAYING, calls portalSystem.respawnAll() + setActive(true)
@@ -102,6 +101,7 @@ game.update = function(delta) {
 
   // Handle portal triggers — enter chaos if not already in it
   if (result.portalsHit.length > 0 && game.state !== STATE.CHAOS) {
+    // enterChaos() calls portalSystem.setActive(false), preventing re-trigger this frame
     game.enterChaos(); // sets state=CHAOS, chaosTimer=30, player.canMoveVertical=true, portalSystem.setActive(false)
     // Also enable vertical for all AI snakes
     aiSnakes.forEach(s => { s.canMoveVertical = true; });

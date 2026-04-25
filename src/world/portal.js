@@ -61,4 +61,13 @@ export class PortalSystem {
       p.rotation.y += delta * 0.6;
     });
   }
+
+  dispose() {
+    this.portals.forEach(p => {
+      this.scene.remove(p);
+      p.geometry.dispose();
+      p.material.dispose();
+    });
+    this.portals = [];
+  }
 }
