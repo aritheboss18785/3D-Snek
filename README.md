@@ -1,12 +1,12 @@
 # 3D Snake
 
-A browser-based snake game built with Three.js. You grow by eating food, hunt down AI opponents, and occasionally get thrown into a chaotic 3D free-for-all when you fly through a portal.
+A browser-based snake game built with Three.js. You grow by eating food, hunt down AI opponents, and occasionally get thrown into a chaotic 3D free for all when you fly through a portal.
 
 ## Gameplay
 
-Move around the arena eating pellets and orbs to grow longer. Running into another snake's body kills it — their remains drop as collectible orbs worth bonus points. AI snakes spawn and grow over time, and as you get bigger the competition gets tougher.
+Move around the arena eating pellets and orbs to grow longer. Running into another snake's body kills it. Their remains drop as collectible orbs worth bonus points. (What's Slither.io?) AI snakes spawn and grow over time, and as you get bigger the competition gets tougher.
 
-**Chaos Mode** — touch one of the glowing purple portals and everything goes 3D for 30 seconds. All snakes can move vertically. Sitting on the ground costs you length, so get airborne. When the timer runs out, everyone returns to the floor and the portals reposition.
+**Chaos Mode**: touch one of the glowing purple portals and everything goes 3D for 30 seconds. All snakes can move vertically. Sitting on the ground costs you length, so get airborne. When the timer runs out, everyone returns to the floor and the portals reposition.
 
 ## Scoring
 
@@ -32,7 +32,7 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:5173` in your browser.
+Cmd+click (Mac) or Ctrl+click (Windows) on the link shown in your terminal. (It should look like http://localhost:517x/)
 
 ## Tech
 
