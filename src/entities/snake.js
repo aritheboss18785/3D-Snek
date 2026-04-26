@@ -63,10 +63,37 @@ export class Snake {
     this.direction.copy(dir).normalize();
   }
 
+  shrink(amount) {
+    this.targetLength = Math.max(3, this.targetLength - amount);
+    this.growthQueue = Math.max(0, this.growthQueue - amount);
+    while (this.segments.length > this.targetLength) {
+      const seg = this.segments.pop();
+      this.scene.remove(seg);
+      seg.geometry.dispose();
+      seg.material.dispose();
+    }
+  }
+
   update(delta) {
+    if (!this.alive) return;
     const moveDist = this.speed * delta;
     this._headPos.addScaledVector(this.direction, moveDist);
     this._distAccum += moveDist;
+
+    if (!this.canMoveVertical) {
+      // Gravity: glide back to floor
+      if (this._headPos.y > 0) {
+        this._headPos.y = Math.max(0, this._headPos.y - 30 * delta);
+      }
+      // Level out direction
+      if (Math.abs(this.direction.y) > 0.001) {
+        this.direction.y *= Math.max(0, 1 - 6 * delta);
+        this.direction.normalize();
+      } else if (this.direction.y !== 0) {
+        this.direction.y = 0;
+        this.direction.normalize();
+      }
+    }
 
     if (this._distAccum >= SEGMENT_SPACING) {
       this._distAccum -= SEGMENT_SPACING;

@@ -2,6 +2,7 @@ import * as THREE from 'three';
 
 const FOOD_COUNT = 100;
 const FOOD_GEO = new THREE.SphereGeometry(0.8, 8, 6);
+const CHAOS_ORB_GEO = new THREE.SphereGeometry(1.8, 8, 8);
 
 export class FoodSystem {
   constructor(scene, arena) {
@@ -9,6 +10,7 @@ export class FoodSystem {
     this.arena = arena;
     this.pellets = [];
     this.orbs = [];
+    this.chaosOrbs = [];
 
     for (let i = 0; i < FOOD_COUNT; i++) this._spawnPellet();
   }
@@ -26,6 +28,31 @@ export class FoodSystem {
     this.pellets.push(mesh);
   }
 
+  spawnChaosFood(arena, count = 25) {
+    for (let i = 0; i < count; i++) {
+      const mat = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        emissive: 0xeeffff,
+        emissiveIntensity: 2.0,
+      });
+      const mesh = new THREE.Mesh(CHAOS_ORB_GEO, mat);
+      const pos = arena.randomFloorPosition(20);
+      pos.y = 10 + Math.random() * 50;
+      mesh.position.copy(pos);
+      this.scene.add(mesh);
+      this.chaosOrbs.push({ mesh, baseY: pos.y, phase: Math.random() * Math.PI * 2 });
+    }
+  }
+
+  clearChaosFood() {
+    this.chaosOrbs.forEach(orb => {
+      this.scene.remove(orb.mesh);
+      orb.mesh.geometry.dispose();
+      orb.mesh.material.dispose();
+    });
+    this.chaosOrbs = [];
+  }
+
   checkCollection(headPos, radius) {
     for (const p of this.pellets) {
       const dx = headPos.x - p.position.x;
@@ -40,11 +67,13 @@ export class FoodSystem {
   }
 
   checkOrbCollection(headPos, radius) {
+    const r2 = radius * radius;
     let growth = 0;
+
     this.orbs = this.orbs.filter(orb => {
       const dx = headPos.x - orb.mesh.position.x;
       const dz = headPos.z - orb.mesh.position.z;
-      if (dx * dx + dz * dz < radius * radius) {
+      if (dx * dx + dz * dz < r2) {
         this.scene.remove(orb.mesh);
         orb.mesh.geometry.dispose();
         orb.mesh.material.dispose();
@@ -53,6 +82,18 @@ export class FoodSystem {
       }
       return true;
     });
+
+    this.chaosOrbs = this.chaosOrbs.filter(orb => {
+      if (headPos.distanceToSquared(orb.mesh.position) < r2) {
+        this.scene.remove(orb.mesh);
+        orb.mesh.geometry.dispose();
+        orb.mesh.material.dispose();
+        growth += 5;
+        return false;
+      }
+      return true;
+    });
+
     return growth;
   }
 
@@ -91,6 +132,15 @@ export class FoodSystem {
     return best;
   }
 
+  nearestChaosOrb(pos, radius) {
+    let best = null, bestDist = radius * radius;
+    for (const orb of this.chaosOrbs) {
+      const d2 = pos.distanceToSquared(orb.mesh.position);
+      if (d2 < bestDist) { bestDist = d2; best = orb.mesh.position; }
+    }
+    return best;
+  }
+
   update(delta) {
     this.orbs = this.orbs.filter(orb => {
       orb.timer -= delta;
@@ -105,6 +155,12 @@ export class FoodSystem {
       orb.mesh.position.y += delta * 0.4;
       return true;
     });
+
+    this.chaosOrbs.forEach(orb => {
+      orb.phase += delta * 1.8;
+      orb.mesh.material.emissiveIntensity = 1.5 + 0.5 * Math.sin(orb.phase);
+      orb.mesh.position.y = orb.baseY + Math.sin(orb.phase * 0.7) * 1.2;
+    });
   }
 
   dispose() {
@@ -113,6 +169,7 @@ export class FoodSystem {
       p.material.dispose();
     });
     FOOD_GEO.dispose();
+    CHAOS_ORB_GEO.dispose();
     this.pellets = [];
     this.orbs.forEach(orb => {
       this.scene.remove(orb.mesh);
@@ -120,5 +177,6 @@ export class FoodSystem {
       orb.mesh.material.dispose();
     });
     this.orbs = [];
+    this.clearChaosFood();
   }
 }

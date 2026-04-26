@@ -18,6 +18,7 @@ export class Game {
 
     this._lastTime = 0;
     this._rafId = null;
+    this._groundPenaltyAccum = 0;
 
     // Set by main.js after construction
     this.player = null;
@@ -39,8 +40,12 @@ export class Game {
   _loop(time) {
     const delta = Math.min((time - this._lastTime) / 1000, 0.05);
     this._lastTime = time;
-    this.update(delta);
-    this.sceneManager.render();
+    try {
+      this.update(delta);
+      this.sceneManager.render();
+    } catch (e) {
+      console.error('[Game loop error]', e);
+    }
     if (this.state !== STATE.DEAD) {
       this._rafId = requestAnimationFrame(t => this._loop(t));
     }
@@ -55,6 +60,7 @@ export class Game {
     if (this.state === STATE.CHAOS) return;
     this.state = STATE.CHAOS;
     this.chaosTimer = 30;
+    this._groundPenaltyAccum = 0;
     if (this.player) this.player.canMoveVertical = true;
     if (this.portalSystem) this.portalSystem.setActive(false);
   }

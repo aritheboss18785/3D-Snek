@@ -7,8 +7,9 @@ const TICK_INTERVAL = 0.1;
 export const AI_TIER = Object.freeze({ BASIC: 0, INTERMEDIATE: 1, AGGRESSIVE: 2 });
 
 const _UP = new THREE.Vector3(0, 1, 0);
+const _RIGHT = new THREE.Vector3();
 const _LOOKAHEAD = new THREE.Vector3();
-const _CANDIDATE_DIRS = Array.from({ length: 5 }, () => new THREE.Vector3());
+const _CANDIDATE_DIRS = Array.from({ length: 7 }, () => new THREE.Vector3());
 
 export class AISystem {
   constructor() {
@@ -28,25 +29,32 @@ export class AISystem {
   }
 
   _decide(ai, allSnakes, foodSystem, arena) {
-    const candidates = this._candidates(ai.direction);
+    const count = this._fillCandidates(ai.direction, ai.canMoveVertical);
     let bestScore = -Infinity;
     let bestIdx = 0;
 
-    for (let i = 0; i < candidates.length; i++) {
-      const s = this._score(candidates[i], ai, allSnakes, foodSystem, arena);
+    for (let i = 0; i < count; i++) {
+      const s = this._score(_CANDIDATE_DIRS[i], ai, allSnakes, foodSystem, arena);
       if (s > bestScore) { bestScore = s; bestIdx = i; }
     }
 
-    ai.setDirection(candidates[bestIdx]);
+    ai.setDirection(_CANDIDATE_DIRS[bestIdx]);
   }
 
-  _candidates(dir) {
+  _fillCandidates(dir, canMoveVertical) {
     _CANDIDATE_DIRS[0].copy(dir);
     _CANDIDATE_DIRS[1].copy(dir).applyAxisAngle(_UP,  Math.PI / 6);
     _CANDIDATE_DIRS[2].copy(dir).applyAxisAngle(_UP, -Math.PI / 6);
     _CANDIDATE_DIRS[3].copy(dir).applyAxisAngle(_UP,  Math.PI / 3);
     _CANDIDATE_DIRS[4].copy(dir).applyAxisAngle(_UP, -Math.PI / 3);
-    return _CANDIDATE_DIRS;
+    if (canMoveVertical) {
+      _RIGHT.crossVectors(dir, _UP).normalize();
+      if (_RIGHT.lengthSq() < 0.001) _RIGHT.set(1, 0, 0);
+      _CANDIDATE_DIRS[5].copy(dir).applyAxisAngle(_RIGHT,  Math.PI / 5); // 36° up
+      _CANDIDATE_DIRS[6].copy(dir).applyAxisAngle(_RIGHT, -Math.PI / 5); // 36° down
+      return 7;
+    }
+    return 5;
   }
 
   _score(dir, ai, allSnakes, foodSystem, arena) {
@@ -72,15 +80,20 @@ export class AISystem {
       const proximity = SCAN_RADIUS - dist;
 
       if (other.length > ai.length + 5) {
-        score -= proximity * 2.5; // flee larger snakes
+        score -= proximity * 2.5;
       } else if (ai.tier === AI_TIER.AGGRESSIVE && other.length < ai.length - 5) {
-        score += proximity * 1.8; // hunt smaller snakes
+        score += proximity * 1.8;
       }
     }
 
     const nearOrb = foodSystem.nearestOrb(_LOOKAHEAD, SCAN_RADIUS);
     if (nearOrb) {
       score += (SCAN_RADIUS - _LOOKAHEAD.distanceTo(nearOrb)) * 1.1;
+    }
+
+    const nearChaosOrb = foodSystem.nearestChaosOrb(_LOOKAHEAD, SCAN_RADIUS);
+    if (nearChaosOrb) {
+      score += (SCAN_RADIUS - _LOOKAHEAD.distanceTo(nearChaosOrb)) * 2.2;
     }
 
     return score;

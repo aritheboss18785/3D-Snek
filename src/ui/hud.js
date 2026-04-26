@@ -17,10 +17,11 @@ export class HUD {
       "></canvas>
 
       <div id="chaos-hud" style="
-        position:absolute; top:42%; left:50%; transform:translateX(-50%);
-        color:#ff00ff; font-family:'Courier New',monospace; font-size:44px; font-weight:bold;
-        text-shadow:0 0 24px #ff00ff; display:none; user-select:none; text-align:center;
-      ">CHAOS<br><span id="chaos-time"></span></div>
+        position:absolute; top:12px; left:50%; transform:translateX(-50%);
+        color:#ff00ff; font-family:'Courier New',monospace; font-size:20px; font-weight:bold;
+        text-shadow:0 0 12px #ff00ff; display:none; user-select:none;
+        background:rgba(0,0,0,0.45); padding:4px 18px; border-radius:20px;
+      ">CHAOS &mdash; <span id="chaos-time"></span></div>
     `;
 
     this._len       = document.getElementById('h-len');

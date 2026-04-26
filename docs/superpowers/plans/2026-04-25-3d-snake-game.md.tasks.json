@@ -1,0 +1,54 @@
+{
+  "planPath": "docs/superpowers/plans/2026-04-25-3d-snake-game.md",
+  "tasks": [
+    {
+      "id": 1,
+      "subject": "Task 1: Set up Vite + Three.js project scaffold",
+      "status": "completed",
+      "description": "**Goal:** Initialize Vite project with Three.js, Vitest, correct folder structure, and a black canvas on screen.\n\n**Files:**\n- Create: package.json, index.html, vite.config.js, src/main.js\n- Create: src/core/, src/entities/, src/world/, src/systems/, src/ui/\n\n**Acceptance Criteria:**\n- [ ] `npm run dev` opens browser with black full-screen canvas, no console errors\n- [ ] `npm run test` runs Vitest with 0 tests\n- [ ] All module directories exist\n\n**Verify:** `npm run dev` → black screen. `npm run test` → passes.\n\n```json:metadata\n{\"files\": [\"package.json\", \"index.html\", \"vite.config.js\", \"src/main.js\"], \"verifyCommand\": \"npm run test\", \"acceptanceCriteria\": [\"npm run dev shows black canvas\", \"npm run test passes\", \"all src/ dirs exist\"]}\n```"
+    },
+    {
+      "id": 2,
+      "subject": "Task 2: Implement Scene, Game Loop, Input & Camera",
+      "status": "completed",
+      "blockedBy": [1],
+      "description": "**Goal:** Three.js scene with lighting, delta-time game loop, keyboard input, and third-person follow camera with chaos mode transition.\n\n**Files:**\n- Create: src/core/scene.js, src/core/game.js, src/core/input.js\n- Create: src/systems/camera.js\n- Modify: src/main.js\n\n**Acceptance Criteria:**\n- [ ] Scene renders with navy background and ambient+directional lighting\n- [ ] STATE enum exported from game.js\n- [ ] Input captures WASD + arrow keys\n- [ ] Camera smoothly follows a test object, FOV changes in chaos mode\n\n**Verify:** `npm run dev` → dark scene, camera follows test cube.\n\n```json:metadata\n{\"files\": [\"src/core/scene.js\", \"src/core/game.js\", \"src/core/input.js\", \"src/systems/camera.js\", \"src/main.js\"], \"verifyCommand\": \"npm run dev\", \"acceptanceCriteria\": [\"navy background visible\", \"STATE enum exported\", \"camera follows object\"]}\n```"
+    },
+    {
+      "id": 3,
+      "subject": "Task 3: Implement Arena & Food System",
+      "status": "completed",
+      "blockedBy": [2],
+      "description": "**Goal:** Visible bounded arena with grid floor, food pellets that respawn, and orbs from dead snakes.\n\n**Files:**\n- Create: src/world/arena.js, src/world/food.js\n- Create: src/world/arena.test.js\n- Modify: src/main.js\n\n**Acceptance Criteria:**\n- [ ] Wireframe arena box 200x200x80 visible\n- [ ] Grid floor spans arena\n- [ ] 100 food pellets on floor\n- [ ] arena.isOutOfBounds() and distanceToWall() tested\n\n**Verify:** `npm run test` → 8 arena tests pass. `npm run dev` → arena and food visible.\n\n```json:metadata\n{\"files\": [\"src/world/arena.js\", \"src/world/food.js\", \"src/world/arena.test.js\"], \"verifyCommand\": \"npm run test\", \"acceptanceCriteria\": [\"8 arena tests pass\", \"arena visible in browser\", \"100 pellets on floor\"]}\n```"
+    },
+    {
+      "id": 4,
+      "subject": "Task 4: Implement Snake Entity, Player & Collision System",
+      "status": "completed",
+      "blockedBy": [2],
+      "description": "**Goal:** Base Snake with trail-based movement, Player subclass with input, collision detection for wall/body/food/orbs.\n\n**Files:**\n- Create: src/entities/snake.js, src/entities/player.js\n- Create: src/systems/collision.js, src/systems/collision.test.js\n- Modify: src/main.js\n\n**Acceptance Criteria:**\n- [ ] Player moves, steers with A/D, grows on food\n- [ ] Wall collision kills player\n- [ ] Self-collision never triggers\n- [ ] sphereOverlap() tested\n\n**Verify:** `npm run test` → collision tests pass. `npm run dev` → snake moves and dies on wall.\n\n```json:metadata\n{\"files\": [\"src/entities/snake.js\", \"src/entities/player.js\", \"src/systems/collision.js\", \"src/systems/collision.test.js\"], \"verifyCommand\": \"npm run test\", \"acceptanceCriteria\": [\"5 collision tests pass\", \"player steers\", \"wall kills player\", \"self-collision disabled\"]}\n```"
+    },
+    {
+      "id": 5,
+      "subject": "Task 5: Implement AI Snakes, Behavior Tiers & Spawn System",
+      "status": "completed",
+      "blockedBy": [3, 4],
+      "description": "**Goal:** AI-controlled snakes with 3 tiers, adaptive difficulty, inter-AI competition, spawn scaling.\n\n**Files:**\n- Create: src/entities/ai-snake.js, src/systems/ai.js\n- Create: src/systems/spawn.js, src/systems/spawn.test.js\n- Modify: src/main.js\n\n**Acceptance Criteria:**\n- [ ] AI snakes spawn at edges, navigate, grow, die\n- [ ] Basic/Intermediate/Aggressive tiers behave differently\n- [ ] Spawn count matches 3/5/8/10 table\n- [ ] getTargetCount() and getStartingTier() tested\n\n**Verify:** `npm run test` → 11 spawn tests pass. `npm run dev` → AI snakes visible, competing.\n\n```json:metadata\n{\"files\": [\"src/entities/ai-snake.js\", \"src/systems/ai.js\", \"src/systems/spawn.js\", \"src/systems/spawn.test.js\"], \"verifyCommand\": \"npm run test\", \"acceptanceCriteria\": [\"11 spawn tests pass\", \"AI snakes spawn and move\", \"tiers upgrade with length\"]}\n```"
+    },
+    {
+      "id": 6,
+      "subject": "Task 6: Implement Portal & Chaos Mode",
+      "status": "completed",
+      "blockedBy": [3, 4],
+      "description": "**Goal:** Rotating portal objects trigger 30s chaos mode with vertical movement, camera pull-back, and portal respawn.\n\n**Files:**\n- Create: src/world/portal.js\n- Modify: src/main.js\n\n**Acceptance Criteria:**\n- [ ] Two rotating neon portals in arena\n- [ ] Touching portal → STATE.CHAOS, vertical movement enabled\n- [ ] Camera pulls back and FOV widens\n- [ ] 30s timer visible, ends cleanly, portals respawn\n\n**Verify:** `npm run dev` → touch portal, chaos activates, vertical movement works, ends after 30s.\n\n```json:metadata\n{\"files\": [\"src/world/portal.js\", \"src/main.js\"], \"verifyCommand\": \"npm run dev\", \"acceptanceCriteria\": [\"portals visible and rotating\", \"chaos mode triggers on contact\", \"vertical movement enabled\", \"returns to normal after 30s\"]}\n```"
+    },
+    {
+      "id": 7,
+      "subject": "Task 7: Implement HUD & Game Over Screen",
+      "status": "completed",
+      "blockedBy": [4, 5, 6],
+      "description": "**Goal:** HTML overlay with live stats, minimap, chaos countdown, and death screen with restart.\n\n**Files:**\n- Create: src/ui/hud.js, src/ui/gameover.js\n- Modify: src/main.js\n\n**Acceptance Criteria:**\n- [ ] Top-left: length/score/kills update live\n- [ ] Top-right: minimap shows snake positions\n- [ ] Chaos countdown center-screen during chaos\n- [ ] Death screen with stats and working restart\n\n**Verify:** `npm run test` → 24 total tests pass. `npm run dev` → full game playable end-to-end.\n\n```json:metadata\n{\"files\": [\"src/ui/hud.js\", \"src/ui/gameover.js\", \"src/main.js\"], \"verifyCommand\": \"npm run test\", \"acceptanceCriteria\": [\"HUD updates live\", \"minimap renders\", \"death screen appears\", \"restart works\", \"24 total tests pass\"]}\n```"
+    }
+  ],
+  "lastUpdated": "2026-04-25T15:55:00Z"
+}

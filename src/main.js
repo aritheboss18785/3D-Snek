@@ -52,13 +52,21 @@ game.update = function(delta) {
 
   if (game.state === STATE.CHAOS) {
     game.chaosTimer -= delta;
+
+    // Ground penalty: being on the floor during chaos shrinks the snake
+    game._groundPenaltyAccum += delta;
+    if (game._groundPenaltyAccum >= 0.5) {
+      game._groundPenaltyAccum -= 0.5;
+      [player, ...aiSnakes].forEach(s => {
+        if (s.alive && s.headPosition.y < 3 && s.length > 4) s.shrink(1);
+      });
+    }
+
     if (game.chaosTimer <= 0) {
       game._endChaos();
-      player.canMoveVertical = false;
-      player._headPos.y = 0;
-      player.direction.y = 0;
-      player.direction.normalize();
+      // No y-snap — Snake.update() smoothly descends via gravity when canMoveVertical=false
       aiSnakes.forEach(s => { s.canMoveVertical = false; });
+      foodSystem.clearChaosFood();
     }
   }
 
@@ -103,8 +111,8 @@ game.update = function(delta) {
   });
 
   if (result.portalsHit.length > 0 && game.state !== STATE.CHAOS) {
-    // enterChaos() calls portalSystem.setActive(false), preventing re-trigger this frame
     game.enterChaos();
+    foodSystem.spawnChaosFood(arena);
     aiSnakes.forEach(s => { s.canMoveVertical = true; });
   }
 
